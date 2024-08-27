@@ -1,6 +1,7 @@
 pub mod imp;
 pub mod local_css_context;
 mod object_subclass_impl;
+use abi::{glib, gtk};
 
 glib::wrapper! {
     /// A Label with a max width (`width_request`) that scrolls when the inner label exceeds the max width

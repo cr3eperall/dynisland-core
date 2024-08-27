@@ -1,13 +1,12 @@
+use std::{collections::HashMap, sync::Arc};
+
 use anyhow::{anyhow, bail, Ok, Result};
 use dyn_clone::DynClone;
-use std::{collections::HashMap, sync::Arc};
+use dynisland_abi::module::ActivityIdentifier;
 use tokio::sync::{mpsc::UnboundedSender, Mutex};
 
-use crate::dynamic_property::{DynamicPropertyAny, PropertyUpdate, ValidDynType};
-
-use dynisland_abi::module::ActivityIdentifier;
-
 use super::graphics::activity_widget::ActivityWidget;
+use crate::dynamic_property::{DynamicPropertyAny, PropertyUpdate, ValidDynType};
 
 /// A closure that takes a `ValidDynType` and is cloneable
 pub trait ValidDynamicClosure: Fn(&dyn ValidDynType) + DynClone {}

@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 
+use abi::{glib, glib_macros, gtk};
 use glib_macros::Properties;
 use gtk::{prelude::*, subclass::prelude::*};
 

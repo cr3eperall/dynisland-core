@@ -11,18 +11,16 @@ edition = "2021"
 
 [dependencies]
 
-dynisland-abi = { version="0.1.0" }
+dynisland-abi = { path="../abi" }
 
-anyhow = { workspace = true }
-gtk = { workspace = true }
-gdk = { workspace = true }
-glib = { workspace = true }
-glib-macros = { workspace = true }
-tokio = { workspace = true, features = ["rt", "time", "sync", "macros"] }
-serde = { workspace = true, features = ["serde_derive"] }
-log = { workspace = true }
-ron = { workspace = true }
-abi_stable = { workspace = true }
+tokio = { version = "1.39.0", features = ["rt", "time", "sync", "macros"] }
+
+anyhow = "1.0.86"
+ron = "0.8.1"
+env_logger = "0.11.2"
+# serde = { version = "1.0.188", features = ["serde_derive"] }
+# linkme = "0.3.17"
+# grass = {version = "0.13.4", default-features = false, features = ["macro"]}
 
 
 # gtk-layer-shell = { version = "0.2.0", package = "gtk4-layer-shell" }

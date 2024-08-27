@@ -1,6 +1,7 @@
 mod imp;
+use abi::gtk;
 
-glib::wrapper! {
+abi::glib::wrapper! {
     pub struct ActivityLayoutManager(ObjectSubclass<imp::ActivityLayoutManagerPriv>)
         @extends gtk::LayoutManager;
 }

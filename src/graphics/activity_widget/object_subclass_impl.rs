@@ -1,5 +1,6 @@
 use std::ffi::CString;
 
+use abi::{glib, gtk};
 use glib::{ffi::GType, subclass::types::*, translate::FromGlib};
 use gtk::subclass::widget::WidgetClassExt;
 

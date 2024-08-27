@@ -1,5 +1,6 @@
 use std::{fmt::Display, str::FromStr};
 
+use abi::{gdk, gtk};
 use gdk::prelude::{DisplayExt, ListModelExtManual, MonitorExt};
 use gtk::{graphene::Point, gsk::Transform, prelude::WidgetExt};
 

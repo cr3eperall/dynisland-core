@@ -1,12 +1,12 @@
 use std::ffi::CString;
 
+use abi::{glib, gtk};
 use glib::{ffi::GType, subclass::boxed::BoxedType, translate::FromGlib};
 use gtk::CssProvider;
 use rand::{distributions::Alphanumeric, Rng};
 
-use crate::{config_variable::ConfigVariable, implement_config_get_set};
-
 use super::boxed_activity_mode::ActivityMode;
+use crate::{config_variable::ConfigVariable, implement_config_get_set};
 
 #[derive(Clone, Debug)]
 pub struct ActivityWidgetLocalCssContext {

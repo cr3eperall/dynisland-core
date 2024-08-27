@@ -1,8 +1,6 @@
 use std::{collections::HashSet, rc::Rc, sync::Arc};
 
-use crate::{
-    activity_map::ActivityMap, dynamic_activity::DynamicActivity, dynamic_property::PropertyUpdate,
-};
+use abi::{abi_stable, glib, gtk, log};
 use abi_stable::external_types::crossbeam_channel::RSender;
 use anyhow::{anyhow, Context, Result};
 use dynisland_abi::module::{ActivityIdentifier, UIServerCommand};
@@ -11,6 +9,10 @@ use log::error;
 use tokio::{
     runtime::Handle,
     sync::{broadcast::Sender, mpsc::UnboundedSender, Mutex},
+};
+
+use crate::{
+    activity_map::ActivityMap, dynamic_activity::DynamicActivity, dynamic_property::PropertyUpdate,
 };
 
 pub type Producer<T> = fn(module: &T);

@@ -1,5 +1,6 @@
 use std::ffi::CString;
 
+use abi::glib;
 use glib::{ffi::GType, subclass::boxed::BoxedType, translate::FromGlib};
 
 #[derive(Clone, Debug, Copy, PartialEq, Eq)]

@@ -4,11 +4,10 @@ pub mod imp;
 pub mod layout_manager;
 pub mod local_css_context;
 mod object_subclass_impl;
-
+use abi::{glib, gtk};
 use gtk::prelude::*;
 
 use self::boxed_activity_mode::ActivityMode;
-
 use super::util;
 
 glib::wrapper! {

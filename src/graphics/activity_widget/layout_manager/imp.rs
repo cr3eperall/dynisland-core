@@ -1,4 +1,8 @@
-use gtk::{prelude::*, subclass::prelude::*};
+use abi::{
+    glib,
+    gtk::{self, prelude::*, subclass::prelude::*},
+    log,
+};
 
 use crate::{
     graphics::activity_widget::{

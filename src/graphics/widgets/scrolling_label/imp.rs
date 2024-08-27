@@ -1,5 +1,6 @@
 use std::{cell::RefCell, str::FromStr};
 
+use abi::{gdk, glib, glib_macros, gtk};
 use gdk::RGBA;
 use glib_macros::Properties;
 use gtk::{
@@ -9,9 +10,8 @@ use gtk::{
     subclass::prelude::*,
 };
 
-use crate::graphics::util::CssSize;
-
 use super::{local_css_context::ScrollingLabelLocalCssContext, ScrollingLabel};
+use crate::graphics::util::CssSize;
 
 //TODO implement vertical orientation and builder
 

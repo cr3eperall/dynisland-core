@@ -1,9 +1,9 @@
 use std::{collections::HashMap, rc::Rc, sync::Arc};
 
+use anyhow::{anyhow, bail, Result};
 use tokio::sync::Mutex;
 
 use crate::{dynamic_activity::DynamicActivity, dynamic_property::DynamicPropertyAny};
-use anyhow::{anyhow, bail, Result};
 
 #[derive(Default)]
 pub struct ActivityMap {

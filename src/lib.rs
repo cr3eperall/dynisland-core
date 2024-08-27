@@ -5,6 +5,10 @@ pub mod dynamic_activity;
 pub mod dynamic_property;
 pub mod graphics;
 
+pub extern crate dynisland_abi as abi;
+pub extern crate ron;
+// pub extern crate grass;
+
 #[macro_export]
 macro_rules! randomize_name {
     ($name:literal) => {
