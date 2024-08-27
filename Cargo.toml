@@ -4,14 +4,14 @@ version = "0.1.0"
 authors = ["cr3eperall"]
 description = "Common logic and widgets for dynisland modules and layout managers"
 license = "MIT"
-repository = "https://github.com/cr3eperall/dynisland"
+repository = "https://github.com/cr3eperall/dynisland-core"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 
-dynisland-abi = { path="../abi" }
+dynisland-abi = { git="https://github.com/cr3eperall/dynisland-abi" }
 
 tokio = { version = "1.39.0", features = ["rt", "time", "sync", "macros"] }
 
