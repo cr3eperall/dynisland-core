@@ -1,6 +1,6 @@
 [package]
 name = "dynisland-core"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["cr3eperall"]
 description = "Common logic and widgets for dynisland modules and layout managers"
 license = "MIT"
@@ -11,7 +11,7 @@ edition = "2021"
 
 [dependencies]
 
-dynisland-abi = { git="https://github.com/cr3eperall/dynisland-abi", version = "0.1.0"}
+dynisland-abi = { git="https://github.com/cr3eperall/dynisland-abi", version = "0.1.1"}
 
 tokio = { version = "1.39.0", features = ["rt", "time", "sync", "macros"] }
 
