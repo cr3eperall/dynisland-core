@@ -1,5 +1,6 @@
 use std::{collections::HashMap, rc::Rc, sync::Arc};
 
+use abi::module::ActivityIdentifier;
 use anyhow::{anyhow, bail, Result};
 use tokio::sync::Mutex;
 
@@ -22,11 +23,27 @@ impl ActivityMap {
     }
     pub fn insert_activity(&mut self, activity: Rc<Mutex<DynamicActivity>>) -> Result<()> {
         let activity_id = activity.blocking_lock().get_identifier();
-        if self.map.contains_key(&activity_id.activity()) {
+        if self.map.contains_key(activity_id.activity()) {
             bail!("activity {} was already registered", activity_id);
         }
-        self.map.insert(activity_id.activity(), activity);
+        self.map
+            .insert(activity_id.activity().to_string(), activity);
         Ok(())
+    }
+    pub fn list_activity_names(&self) -> Vec<&str> {
+        self.map.keys().map(|x| x.as_str()).collect()
+    }
+    pub fn list_activity_windows(&self) -> Vec<Option<String>> {
+        self.map
+            .values()
+            .map(|x| x.blocking_lock().identifier.metadata().window_name())
+            .collect()
+    }
+    pub fn list_activities(&self) -> Vec<ActivityIdentifier> {
+        self.map
+            .values()
+            .map(|x| x.blocking_lock().get_identifier())
+            .collect()
     }
     /// Get a property from an activity
     ///

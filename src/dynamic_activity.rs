@@ -2,7 +2,8 @@ use std::{collections::HashMap, sync::Arc};
 
 use anyhow::{anyhow, bail, Ok, Result};
 use dyn_clone::DynClone;
-use dynisland_abi::module::ActivityIdentifier;
+use dynisland_abi::{gtk, module::ActivityIdentifier};
+use gtk::prelude::WidgetExt;
 use tokio::sync::{mpsc::UnboundedSender, Mutex};
 
 use super::graphics::activity_widget::ActivityWidget;
@@ -48,6 +49,42 @@ impl DynamicActivity {
             property_dictionary: HashMap::new(),
             prop_send,
             identifier: ActivityIdentifier::new(module_name, activity_name),
+        }
+    }
+
+    /// Create a new DynamicActivity with additional metadata
+    ///
+    /// Also creates a new ActivityWidget
+    ///
+    /// * `prop_send` - the backend channel for the property update notifications, you get this from `BaseModule.prop_send()`
+    pub fn new_with_metadata(
+        prop_send: UnboundedSender<PropertyUpdate>,
+        module_name: &str,
+        activity_name: &str,
+        window_name: Option<&str>,
+        additional_metadata: Option<&str>,
+    ) -> Self {
+        let name = if let Some(window_name) = window_name {
+            format!("{}-{}", activity_name, window_name)
+        } else {
+            format!("{}-", activity_name)
+        };
+        let mut id = ActivityIdentifier::new(module_name, &name);
+        if let Some(window_name) = window_name {
+            id.metadata_mut().set_window_name(window_name);
+        }
+        if let Some(additional_metadata) = additional_metadata {
+            id.metadata_mut()
+                .set_additional_metadata(additional_metadata);
+        }
+        let widget = ActivityWidget::new(&name);
+        widget.add_css_class(activity_name);
+
+        Self {
+            widget: widget,
+            property_dictionary: HashMap::new(),
+            prop_send,
+            identifier: id,
         }
     }
 

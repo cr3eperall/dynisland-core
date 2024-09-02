@@ -93,7 +93,7 @@ impl ScrollingLabelLocalCssContext {
         let start_percentage = (delay / duration) * 100.0;
 
         // log::debug!("size: {} flag: {}",size, self.anim_restart_flag);
-        // debug!("{size_timing_function}");
+        // log::debug!("{size_timing_function}");
         let scroll_anim = &self.animation_name;
         let css = if active {
             // log::debug!("active");

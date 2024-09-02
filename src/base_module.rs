@@ -3,9 +3,8 @@ use std::{collections::HashSet, rc::Rc, sync::Arc};
 use abi::{abi_stable, glib, gtk, log};
 use abi_stable::external_types::crossbeam_channel::RSender;
 use anyhow::{anyhow, Context, Result};
-use dynisland_abi::module::{ActivityIdentifier, UIServerCommand};
+use dynisland_abi::module::UIServerCommand;
 use glib::object::Cast;
-use log::error;
 use tokio::{
     runtime::Handle,
     sync::{broadcast::Sender, mpsc::UnboundedSender, Mutex},
@@ -73,12 +72,12 @@ impl ProducerRuntime {
     /// Shuts down the runtime after sending the cleanup notification and waiting for a confirmation.
     pub async fn shutdown(&self) {
         let num = self.cleanup_notifier.receiver_count();
-        log::debug!("stopping producer runtime: {} cleanup receivers", num);
+        log::trace!("stopping producer runtime: {} cleanup receivers", num);
         let (res_tx, mut res_rx) = tokio::sync::mpsc::unbounded_channel();
         match self.cleanup_notifier.send(res_tx) {
             Ok(_) => {
                 for i in 0..num {
-                    log::debug!("waiting on cleanup {}", i + 1);
+                    log::trace!("waiting on cleanup {}", i + 1);
                     if res_rx.recv().await.is_none() {
                         //all of the remaining receivers already quit/crashed
                         break;
@@ -86,7 +85,7 @@ impl ProducerRuntime {
                 }
             }
             Err(_) => {
-                log::debug!("no cleanup needed");
+                log::trace!("no cleanup needed");
             }
         }
         if self.shutdown.lock().await.send(()).await.is_err() {
@@ -98,12 +97,12 @@ impl ProducerRuntime {
     /// blocking
     pub fn shutdown_blocking(&self) {
         let num = self.cleanup_notifier.receiver_count();
-        log::debug!("stopping producer runtime: {} cleanup receivers", num);
+        log::trace!("stopping producer runtime: {} cleanup receivers", num);
         let (res_tx, mut res_rx) = tokio::sync::mpsc::unbounded_channel();
         match self.cleanup_notifier.send(res_tx) {
             Ok(_) => {
                 for i in 0..num {
-                    log::debug!("waiting on cleanup {}", i + 1);
+                    log::trace!("waiting on cleanup {}", i + 1);
                     if res_rx.blocking_recv().is_none() {
                         //all of the remaining receivers already quit/crashed
                         break;
@@ -111,7 +110,7 @@ impl ProducerRuntime {
                 }
             }
             Err(_) => {
-                log::debug!("no cleanup needed");
+                log::trace!("no cleanup needed");
             }
         }
         if self.shutdown.blocking_lock().blocking_send(()).is_err() {
@@ -214,9 +213,19 @@ impl<T> BaseModule<T> {
     ///
     /// does nothing if the activity wasn't registered
     pub fn unregister_activity(&self, activity_name: &str) {
+        let activity_list = self
+            .registered_activities()
+            .blocking_lock()
+            .list_activities();
+        let identifier = activity_list.iter().find(|x| x.activity() == activity_name);
+        if identifier.is_none() {
+            log::debug!("activity {activity_name} isn't registered");
+            return;
+        }
+        let identifier = identifier.unwrap().clone();
         self.app_send
             .send(UIServerCommand::RemoveActivity {
-                activity_id: ActivityIdentifier::new(self.name, activity_name),
+                activity_id: identifier,
             })
             .unwrap_or_else(|err| log::debug!("err: {err}"));
 
@@ -226,9 +235,11 @@ impl<T> BaseModule<T> {
             .map
             .remove(activity_name)
         {
-            Some(_) => {}
+            Some(_) => {
+                log::trace!("activity {activity_name} unregistered from base module");
+            }
             None => {
-                log::debug!("activity {activity_name} isn't registered");
+                log::trace!("activity {activity_name} wasn't registered in base module");
             }
         }
     }
@@ -251,12 +262,12 @@ impl<T> BaseModule<T> {
                                 }
                             }
                             Err(err) => {
-                                error!("{}", err)
+                                log::error!("{}", err)
                             }
                         }
                     }
                 } else {
-                    match activities.lock().await.map.get(&res.activity_id.activity()) {
+                    match activities.lock().await.map.get(res.activity_id.activity()) {
                         Some(activity) => {
                             match activity.lock().await.get_subscribers(&res.property_name) {
                                 core::result::Result::Ok(subs) => {
@@ -265,12 +276,12 @@ impl<T> BaseModule<T> {
                                     }
                                 }
                                 Err(err) => {
-                                    error!("{}", err)
+                                    log::error!("{}", err)
                                 }
                             }
                         }
                         None => {
-                            error!("activity {} not found on ExampleModule", res.activity_id);
+                            log::error!("activity {} not found on ExampleModule", res.activity_id);
                         }
                     }
                 }

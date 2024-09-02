@@ -166,7 +166,7 @@ impl ActivityWidgetLocalCssContext {
         );
         let (min_blur, com_blur, exp_blur, ove_blur) =
             (self.blur[0], self.blur[1], self.blur[2], self.blur[3]);
-        // debug!("{size_timing_function}");
+        // log::debug!("{size_timing_function}");
         let css = if self.stretch_on_resize {
             format!(
                 r".{name}:not(.hidden) .activity-background, .{name}:not(.hidden) .activity-background * {{ 
