@@ -45,7 +45,7 @@ impl DynamicActivity {
         activity_name: &str,
     ) -> Self {
         Self {
-            widget: ActivityWidget::new(activity_name),
+            widget: ActivityWidget::new(&(activity_name.to_string() + "-" + module_name)),
             property_dictionary: HashMap::new(),
             prop_send,
             identifier: ActivityIdentifier::new(module_name, activity_name),
@@ -77,7 +77,7 @@ impl DynamicActivity {
             id.metadata_mut()
                 .set_additional_metadata(additional_metadata);
         }
-        let widget = ActivityWidget::new(&name);
+        let widget = ActivityWidget::new(&&(name.to_string() + "-" + module_name));
         widget.add_css_class(activity_name);
 
         Self {
