@@ -30,6 +30,13 @@ impl ActivityMap {
             .insert(activity_id.activity().to_string(), activity);
         Ok(())
     }
+    pub fn remove_activity(&mut self, activity_id: &ActivityIdentifier) -> Result<()> {
+        if !self.map.contains_key(activity_id.activity()) {
+            bail!("activity {} wasn't registered", activity_id);
+        }
+        self.map.remove(activity_id.activity());
+        Ok(())
+    }
     pub fn list_activity_names(&self) -> Vec<&str> {
         self.map.keys().map(|x| x.as_str()).collect()
     }

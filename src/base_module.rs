@@ -1,4 +1,4 @@
-use std::{collections::HashSet, rc::Rc, sync::Arc};
+use std::{collections::HashSet, rc::Rc, sync::Arc, thread};
 
 use abi::{abi_stable, glib, gtk, log};
 use abi_stable::external_types::crossbeam_channel::RSender;
@@ -122,7 +122,7 @@ impl ProducerRuntime {
             tokio::sync::oneshot::channel::<(Handle, tokio::sync::mpsc::Sender<()>)>();
         let (shutdown_send, mut shutdown_recv) = tokio::sync::mpsc::channel::<()>(1);
         std::thread::Builder::new()
-            .name("dyn-producers".to_string())
+            .name("dyn-producers".to_string() + &(rand::random::<u16>()).to_string())
             .spawn(move || {
                 let rt = tokio::runtime::Builder::new_current_thread()
                     .enable_all()
@@ -132,8 +132,14 @@ impl ProducerRuntime {
                 rt_send
                     .send((handle.clone(), shutdown_send))
                     .expect("failed to send rt");
-                rt.block_on(async { shutdown_recv.recv().await }); //keep thread alive
-                                                                   // log::info!("shutting down runtime");
+                rt.block_on(async {
+                    shutdown_recv.recv().await;
+                    log::info!(
+                        "thread {} received shutdown",
+                        thread::current().name().unwrap()
+                    );
+                }); //keep thread alive
+                    // log::info!("shutting down runtime");
             })
             .expect("failed to spawn dyn-producers trhread");
 
@@ -205,6 +211,27 @@ impl<T> BaseModule<T> {
         reg.insert_activity(activity)
             .with_context(|| "failed to register activity")
     }
+
+    /// Register an activity with the app
+    ///
+    /// returns `Err` if the activity was already registered
+    pub fn register_activity_rc(&self, activity: Rc<Mutex<DynamicActivity>>) -> Result<()> {
+        let activity_lock = activity.blocking_lock();
+        let widget = activity_lock.get_activity_widget();
+        let id = activity_lock.get_identifier();
+        drop(activity_lock);
+
+        self.app_send
+            .send(UIServerCommand::AddActivity {
+                activity_id: id,
+                widget: widget.upcast::<gtk::Widget>().into(),
+            })
+            .map_err(|err| anyhow!(err.to_string()))?;
+        let mut reg = self.registered_activities.blocking_lock();
+        reg.insert_activity(activity)
+            .with_context(|| "failed to register activity")
+    }
+
     /// Get a `tokio::sync::Mutex` to the activity map
     pub fn registered_activities(&self) -> Rc<Mutex<ActivityMap>> {
         self.registered_activities.clone()
@@ -281,7 +308,7 @@ impl<T> BaseModule<T> {
                             }
                         }
                         None => {
-                            log::error!("activity {} not found on ExampleModule", res.activity_id);
+                            // log::trace!("activity {} not found", res.activity_id);
                         }
                     }
                 }
