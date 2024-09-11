@@ -6,6 +6,6 @@ pub mod dynamic_property;
 pub mod graphics;
 
 pub extern crate dynisland_abi as abi;
-pub extern crate ron;
 #[cfg(feature = "macro")]
 pub extern crate dynisland_macro as d_macro;
+pub extern crate ron;

@@ -62,7 +62,7 @@ impl DynamicActivity {
         module_name: &str,
         activity_name: &str,
         window_name: Option<&str>,
-        additional_metadata: Option<&str>,
+        additional_metadata: Vec<(String, String)>,
     ) -> Self {
         let name = if let Some(window_name) = window_name {
             format!("{}-{}", activity_name, window_name)
@@ -73,9 +73,9 @@ impl DynamicActivity {
         if let Some(window_name) = window_name {
             id.metadata_mut().set_window_name(window_name);
         }
-        if let Some(additional_metadata) = additional_metadata {
-            id.metadata_mut()
-                .set_additional_metadata(additional_metadata);
+        let meta_map = id.metadata_mut();
+        for (key, value) in additional_metadata {
+            meta_map.set_additional_metadata(key, value);
         }
         let widget = ActivityWidget::new(&&(name.to_string() + "-" + module_name));
         widget.add_css_class(activity_name);
