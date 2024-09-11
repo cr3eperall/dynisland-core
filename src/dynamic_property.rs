@@ -1,4 +1,4 @@
-use std::{any::Any, marker::PhantomData};
+use std::any::Any;
 
 use anyhow::{bail, Result};
 use dyn_clone::DynClone;
@@ -24,19 +24,19 @@ pub struct DynamicPropertyAny {
     pub(crate) property_name: String,
     pub(crate) value: Box<dyn ValidDynType>,
 }
-pub struct DynamicProperty<T: ValidDynType> {
-    property: DynamicPropertyAny,
-    t: PhantomData<T>,
-}
+// struct DynamicProperty<T: ValidDynType> {
+//     property: DynamicPropertyAny,
+//     t: PhantomData<T>,
+// }
 
-impl<T: ValidDynType> Clone for DynamicProperty<T> {
-    fn clone(&self) -> Self {
-        Self {
-            property: self.property.clone(),
-            t: PhantomData,
-        }
-    }
-}
+// impl<T: ValidDynType> Clone for DynamicProperty<T> {
+//     fn clone(&self) -> Self {
+//         Self {
+//             property: self.property.clone(),
+//             t: PhantomData,
+//         }
+//     }
+// }
 
 impl Clone for DynamicPropertyAny {
     fn clone(&self) -> Self {
@@ -82,30 +82,31 @@ impl DynamicPropertyAny {
         }
     }
 }
-/// Not currently used
-impl<T: ValidDynType> DynamicProperty<T> {
-    pub fn name(&self) -> &str {
-        self.property.property_name.as_str()
-    }
 
-    pub fn get(&self) -> &T {
-        crate::cast_dyn_any!(self.property.value, T).unwrap()
-    }
+// /// Not currently used
+// impl<T: ValidDynType> DynamicProperty<T> {
+//     pub fn name(&self) -> &str {
+//         self.property.property_name.as_str()
+//     }
 
-    /// returns Err if the value is of the wrong type
-    pub fn set(&mut self, value: T) -> Result<()> {
-        self.property.set(value)
-    }
-}
+//     pub fn get(&self) -> &T {
+//         crate::cast_dyn_any!(self.property.value, T).unwrap()
+//     }
 
-impl<T: ValidDynType> From<DynamicPropertyAny> for DynamicProperty<T> {
-    fn from(value: DynamicPropertyAny) -> Self {
-        Self {
-            property: value,
-            t: PhantomData,
-        }
-    }
-}
+//     /// returns Err if the value is of the wrong type
+//     pub fn set(&mut self, value: T) -> Result<()> {
+//         self.property.set(value)
+//     }
+// }
+
+// impl<T: ValidDynType> From<DynamicPropertyAny> for DynamicProperty<T> {
+//     fn from(value: DynamicPropertyAny) -> Self {
+//         Self {
+//             property: value,
+//             t: PhantomData,
+//         }
+//     }
+// }
 
 pub trait AsAny {
     fn as_any(&self) -> &dyn Any;
@@ -116,7 +117,7 @@ impl<T: Any> AsAny for T {
     }
 }
 
-/// Downcast an Any obtained from `DynamicPropertyAny.get()` to a type
+/// Downcast an Any obtained from `DynamicPropertyAny.get()` or a subscriber, to a type
 #[macro_export]
 macro_rules! cast_dyn_any {
     ($val:expr, $type:ty) => {

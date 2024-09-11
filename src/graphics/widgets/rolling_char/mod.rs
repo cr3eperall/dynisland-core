@@ -6,6 +6,9 @@ use gtk::{prelude::*, subclass::prelude::*};
 
 glib::wrapper! {
     /// A Label containing a single char that scrolls up when it is changed
+    ///
+    /// # Properties
+    /// * `current-char` (get,set) - The current char of the RollingChar
     pub struct RollingChar(ObjectSubclass<imp::RollingCharPriv>)
         @extends gtk::Widget,
         @implements gtk::Buildable;

@@ -6,7 +6,7 @@ use gtk::{graphene::Point, gsk::Transform, prelude::WidgetExt};
 
 use super::activity_widget::boxed_activity_mode::ActivityMode;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum CssSize {
     Fixed(i32),
     Percent(f32),

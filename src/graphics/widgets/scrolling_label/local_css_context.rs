@@ -7,7 +7,7 @@ use abi::{
 use gtk::CssProvider;
 use rand::{distributions::Alphanumeric, Rng};
 
-use crate::{config_variable::ConfigVariable, graphics::util::CssSize, implement_config_get_set};
+use crate::graphics::util::CssSize;
 
 #[derive(Clone, Debug)]
 pub struct ScrollingLabelLocalCssContext {
@@ -18,9 +18,9 @@ pub struct ScrollingLabelLocalCssContext {
     animation_name: String,
     active: bool,
 
-    config_fade_size: ConfigVariable<CssSize>,
-    config_speed: ConfigVariable<f32>, //pixels per second
-    config_delay: ConfigVariable<u64>, //millis
+    config_fade_size: CssSize,
+    config_speed: f32, //pixels per second
+    config_delay: u64, //millis
 }
 
 impl ScrollingLabelLocalCssContext {
@@ -31,15 +31,11 @@ impl ScrollingLabelLocalCssContext {
             animation_name: "scroll".to_string(),
             size: 0,
             active: true,
-            config_fade_size: ConfigVariable::new(CssSize::Percent(4.0)),
-            config_speed: ConfigVariable::new(40.0),
-            config_delay: ConfigVariable::new(5000),
+            config_fade_size: CssSize::Percent(4.0),
+            config_speed: 40.0,
+            config_delay: 5000,
         }
     }
-
-    implement_config_get_set!(pub, config_fade_size, CssSize);
-    implement_config_get_set!(pub, config_speed, f32, self=>{self.set_new_animation_name("scroll"); self.update_provider();});
-    implement_config_get_set!(pub, config_delay, u64, self=>{self.set_new_animation_name("scroll"); self.update_provider();});
 
     // GET
     pub fn get_css_provider(&self) -> &CssProvider {
@@ -53,6 +49,15 @@ impl ScrollingLabelLocalCssContext {
     }
     pub fn get_active(&self) -> bool {
         self.active
+    }
+    pub fn get_config_fade_size(&self) -> CssSize {
+        self.config_fade_size.clone()
+    }
+    pub fn get_config_speed(&self) -> f32 {
+        self.config_speed
+    }
+    pub fn get_config_delay(&self) -> u64 {
+        self.config_delay
     }
 
     // SET
@@ -70,6 +75,27 @@ impl ScrollingLabelLocalCssContext {
         self.active = active;
         self.size = size;
         self.update_provider()
+    }
+    pub fn set_config_fade_size(&mut self, fade_size: CssSize) {
+        if self.config_fade_size == fade_size {
+            return;
+        }
+        self.config_fade_size = fade_size;
+        self.update_provider();
+    }
+    pub fn set_config_speed(&mut self, speed: f32) {
+        if self.config_speed == speed {
+            return;
+        }
+        self.config_speed = speed;
+        self.update_provider();
+    }
+    pub fn set_config_delay(&mut self, delay: u64) {
+        if self.config_delay == delay {
+            return;
+        }
+        self.config_delay = delay;
+        self.update_provider();
     }
 
     fn set_new_animation_name(&mut self, prefix: &str) {
@@ -89,8 +115,8 @@ impl ScrollingLabelLocalCssContext {
         let name = self.name.as_str();
         let active = self.active;
         let size = self.size;
-        let mut duration = (size as f32 / self.config_speed.value) * 1000.0; //millis
-        let delay = self.config_delay.value as f32;
+        let mut duration = (size as f32 / self.config_speed) * 1000.0; //millis
+        let delay = self.config_delay as f32;
         duration += delay;
         let start_percentage = (delay / duration) * 100.0;
 

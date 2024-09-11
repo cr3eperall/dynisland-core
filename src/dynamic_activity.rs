@@ -54,9 +54,17 @@ impl DynamicActivity {
 
     /// Create a new DynamicActivity with additional metadata
     ///
+    /// The final activity name used in the identifier will be `"activity_name-window_name"`
+    /// or just `"activity_name"` if `window_name` is `None`
+    ///
     /// Also creates a new ActivityWidget
     ///
+    /// # Arguments
     /// * `prop_send` - the backend channel for the property update notifications, you get this from `BaseModule.prop_send()`
+    /// * `module_name` - the name of the module, use the one defined in the crate (example: `crate::NAME`)
+    /// * `activity_name` - the base name of the activity, this should be unique for each window
+    /// * `window_name` - the name of the window, this can be `None` and it will go the default window
+    /// * `additional_metadata` - a list of additional metadata key-value pairs to add to the activity identifier
     pub fn new_with_metadata(
         prop_send: UnboundedSender<PropertyUpdate>,
         module_name: &str,
@@ -67,7 +75,7 @@ impl DynamicActivity {
         let name = if let Some(window_name) = window_name {
             format!("{}-{}", activity_name, window_name)
         } else {
-            format!("{}-", activity_name)
+            format!("{}", activity_name)
         };
         let mut id = ActivityIdentifier::new(module_name, &name);
         if let Some(window_name) = window_name {
@@ -91,7 +99,8 @@ impl DynamicActivity {
     /// Replace the `ActivityWidget`
     ///
     /// # Warning
-    /// This doesn't unregister the previous ActivityWidget, you have to do it before calling this method
+    /// This doesn't deallocate the previous ActivityWidget if the dynamic activity is registered,
+    /// you have to do it before calling this method
     pub fn set_activity_widget(&mut self, widget: ActivityWidget) {
         widget.set_name(self.widget.name());
         self.widget = widget;

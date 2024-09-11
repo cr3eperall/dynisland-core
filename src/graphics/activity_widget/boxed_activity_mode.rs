@@ -1,4 +1,4 @@
-use std::ffi::CString;
+use std::{ffi::CString, fmt::Display};
 
 use abi::glib;
 use glib::{ffi::GType, subclass::boxed::BoxedType, translate::FromGlib};
@@ -27,14 +27,15 @@ impl TryFrom<u8> for ActivityMode {
     }
 }
 
-impl ToString for ActivityMode {
-    fn to_string(&self) -> String {
-        match self {
+impl Display for ActivityMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let string = match self {
             ActivityMode::Minimal => "minimal".to_string(),
             ActivityMode::Compact => "compact".to_string(),
             ActivityMode::Expanded => "expanded".to_string(),
             ActivityMode::Overlay => "overlay".to_string(),
-        }
+        };
+        write!(f, "{}", string)
     }
 }
 

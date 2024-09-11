@@ -10,18 +10,7 @@ use crate::graphics::activity_widget::{
 #[derive(Default)]
 pub struct ActivityLayoutManagerPriv {}
 
-// #[glib::object_subclass]
-// impl ObjectSubclass for ActivityLayoutManagerPriv {
-//     const NAME: &'static str = randomize_name!("ActivityLayoutManager");
-//     type Type = super::ActivityLayoutManager;
-//     type ParentType = gtk::LayoutManager;
-// }
-
 impl ObjectImpl for ActivityLayoutManagerPriv {}
-
-// impl ActivityLayoutManagerPriv {
-
-// }
 
 // Force the size of the ActivityWidget to be the one of the background widget, so that it can be controlled by css and it can be animated
 impl LayoutManagerImpl for ActivityLayoutManagerPriv {

@@ -6,7 +6,6 @@ use gtk::CssProvider;
 use rand::{distributions::Alphanumeric, Rng};
 
 use super::boxed_activity_mode::ActivityMode;
-use crate::{config_variable::ConfigVariable, implement_config_get_set};
 
 #[derive(Clone, Debug)]
 pub struct ActivityWidgetLocalCssContext {
@@ -19,10 +18,7 @@ pub struct ActivityWidgetLocalCssContext {
     blur: [f64; 4],
     stretch_on_resize: bool,
 
-    config_minimal_height: ConfigVariable<i32>,
-    // config_minimal_width: ConfigVariable<i32>,
-    // config_blur_radius: ConfigVariable<f64>,
-    // config_enable_drag_stretch: ConfigVariable<bool>,
+    config_minimal_height: i32,
 }
 
 #[allow(unused_braces)]
@@ -37,17 +33,9 @@ impl ActivityWidgetLocalCssContext {
             blur: [0.0, 1.0, 1.0, 1.0],
             stretch_on_resize: true,
 
-            config_minimal_height: ConfigVariable::new(40),
-            // config_minimal_width: ConfigVariable::new(60),
-            // config_blur_radius: ConfigVariable::new(6.0),
-            // config_enable_drag_stretch: ConfigVariable::new(false),
+            config_minimal_height: 40,
         }
     }
-
-    implement_config_get_set!(pub, config_minimal_height, i32);
-    // implement_config_get_set!(pub, config_minimal_width, i32);
-    // implement_config_get_set!(pub, config_blur_radius, f64);
-    // implement_config_get_set!(pub, config_enable_drag_stretch, bool);
 
     // GET
     pub fn get_css_provider(&self) -> &CssProvider {
@@ -71,6 +59,9 @@ impl ActivityWidgetLocalCssContext {
     pub fn get_stretch_on_resize(&self) -> bool {
         self.stretch_on_resize
     }
+    pub fn get_config_minimal_height(&self) -> i32 {
+        self.config_minimal_height
+    }
 
     // SET
     pub fn set_name(&mut self, name: &str) {
@@ -82,8 +73,8 @@ impl ActivityWidgetLocalCssContext {
             return;
         }
         self.size = (
-            i32::max(size.0, self.config_minimal_height.value),
-            i32::max(size.1, self.config_minimal_height.value),
+            i32::max(size.0, self.config_minimal_height),
+            i32::max(size.1, self.config_minimal_height),
         );
         self.update_provider()
     }
@@ -135,6 +126,13 @@ impl ActivityWidgetLocalCssContext {
         }
         self.stretch_on_resize = stretch;
         self.update_provider()
+    }
+    pub fn set_config_minimal_height(&mut self, height: i32) {
+        if self.config_minimal_height == height {
+            return;
+        }
+        self.config_minimal_height = height;
+        self.set_size(self.size);
     }
 
     fn update_provider(&self) {

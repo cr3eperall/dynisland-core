@@ -16,8 +16,28 @@ glib::wrapper! {
     ///
     /// It also stretches on drag if enabled
     ///
-    /// The valign and halign properties of the mode widgets
-    /// decide the size of the sub-widget during a mode change, view [`get_child_aligned_allocation`](super::util::get_child_aligned_allocation) for more info
+    /// The valign and halign properties of the mode widgets, along with the requested size,
+    /// decide the size of the sub-widget during a mode change:
+    /// view [`get_child_aligned_allocation`](super::util::get_child_aligned_allocation) for more info
+    ///
+    /// # Properties
+    ///
+    /// * `mode` (get,set) - The current mode of the ActivityWidget
+    /// * `last-mode` (get) - The last mode of the ActivityWidget
+    ///
+    /// * `minimal-mode-widget` (get,set) - The widget to be shown in minimal mode
+    /// * `compact-mode-widget` (get,set) - The widget to be shown in compact mode
+    /// * `expanded-mode-widget` (get,set) - The widget to be shown in expanded mode
+    /// * `overlay-mode-widget` (get,set) - The widget to be shown in overlay mode
+    ///
+    /// ## Properties used by dynisland
+    /// These properties are automatically set from the general_style_config field in the config
+    /// module implementers should only set them if the module allows the user to change them
+    ///
+    /// * `config-minimal-height` (get,set) - The minimum height of the ActivityWidget
+    /// * `config-minimal-width` (get,set) - The minimum width of the ActivityWidget
+    /// * `config-blur-radius` (get,set) - The blur radius of the ActivityWidget during a transition
+    /// * `config-enable-drag-stretch` (get,set) - Whether the ActivityWidget can be stretched by dragging
     pub struct ActivityWidget(ObjectSubclass<imp::ActivityWidgetPriv>)
         @extends gtk::Widget;
 }

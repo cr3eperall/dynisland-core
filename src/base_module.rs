@@ -7,7 +7,11 @@ use dynisland_abi::module::UIServerCommand;
 use glib::object::Cast;
 use tokio::{
     runtime::Handle,
-    sync::{broadcast::Sender, mpsc::UnboundedSender, Mutex},
+    sync::{
+        broadcast::{Receiver, Sender},
+        mpsc::UnboundedSender,
+        Mutex,
+    },
 };
 
 use crate::{
@@ -16,7 +20,7 @@ use crate::{
 
 pub type Producer<T> = fn(module: &T);
 
-/// A tokio runtime that performs cleanup and stops when shutdown is called.
+/// A tokio runtime that performs a cleanup and stops when shutdown is called.
 pub struct ProducerRuntime {
     handle: Mutex<Handle>,
     shutdown: Arc<Mutex<tokio::sync::mpsc::Sender<()>>>,
@@ -52,13 +56,13 @@ impl ProducerRuntime {
     pub fn handle(&self) -> Handle {
         self.handle.blocking_lock().clone()
     }
-    /// Start a new runtime, if the runtime is still running, it will stop without calling the cleanup_notifier
+    /// Starts a new runtime, if the runtime is still running, it will stop without calling the cleanup_notifier
     pub async fn reset(&self) {
         let (handle, shutdown) = Self::get_new_tokio_rt();
         *self.handle.lock().await = handle;
         *self.shutdown.lock().await = shutdown;
     }
-    /// Start a new runtime, if the runtime is still running, it will stop without calling the cleanup_notifier
+    /// Starts a new runtime, if the runtime is still running, it will stop without calling the cleanup_notifier
     ///
     /// blocking
     pub fn reset_blocking(&self) {
@@ -66,8 +70,9 @@ impl ProducerRuntime {
         *self.handle.blocking_lock() = handle;
         *self.shutdown.blocking_lock() = shutdown;
     }
-    pub fn get_cleanup_notifier(&self) -> Sender<UnboundedSender<()>> {
-        self.cleanup_notifier.clone()
+    /// Get the cleanup notifier to receive a cleanup notification
+    pub fn get_cleanup_notifier(&self) -> Receiver<UnboundedSender<()>> {
+        self.cleanup_notifier.subscribe()
     }
     /// Shuts down the runtime after sending the cleanup notification and waiting for a confirmation.
     pub async fn shutdown(&self) {
@@ -212,7 +217,10 @@ impl<T> BaseModule<T> {
             .with_context(|| "failed to register activity")
     }
 
-    /// Register an activity with the app
+    /// Register an activity from an Rc<Mutex> with the app
+    ///
+    /// This should be used when the activity is registered/unregistered multiple times during the module lifetime.
+    /// To avoid creating multiple instances of the same dynamic activity
     ///
     /// returns `Err` if the activity was already registered
     pub fn register_activity_rc(&self, activity: Rc<Mutex<DynamicActivity>>) -> Result<()> {
@@ -232,11 +240,15 @@ impl<T> BaseModule<T> {
             .with_context(|| "failed to register activity")
     }
 
-    /// Get a `tokio::sync::Mutex` to the activity map
+    /// Get a `Mutex` to the activity map
     pub fn registered_activities(&self) -> Rc<Mutex<ActivityMap>> {
         self.registered_activities.clone()
     }
+
     /// Unregister the activity with that name in the identifier
+    ///
+    /// # Arguments
+    /// * `activity_name` - The name of the activity (activity_identifier.activity())
     ///
     /// does nothing if the activity wasn't registered
     pub fn unregister_activity(&self, activity_name: &str) {
@@ -321,11 +333,11 @@ impl<T> BaseModule<T> {
     pub fn prop_send(&self) -> UnboundedSender<PropertyUpdate> {
         self.prop_send.clone()
     }
-    /// Get the channel to manually register/unregister Activities or restart producers
+    /// Get the channel to communicate with the app
     pub fn app_send(&self) -> RSender<UIServerCommand> {
         self.app_send.clone()
     }
-    /// Get the name of the module
+    /// Get the name of the module, should be the same as activity_identifier.activity()
     pub fn name(&self) -> &'static str {
         self.name
     }

@@ -127,23 +127,18 @@ impl ObjectImpl for ScrollingLabelPriv {
                 let value: String = value.get().unwrap();
                 self.local_css_context.borrow_mut().set_config_fade_size(
                     CssSize::from_str(&value).unwrap_or(CssSize::Percent(4.0)),
-                    false,
                 );
                 self.config_fade_size.replace(value);
             }
             "config-scroll-speed" => {
                 let value = value.get().unwrap();
                 self.config_scroll_speed.replace(value);
-                self.local_css_context
-                    .borrow_mut()
-                    .set_config_speed(value, false);
+                self.local_css_context.borrow_mut().set_config_speed(value);
             }
             "config-delay" => {
                 let value = value.get().unwrap();
                 self.config_delay.replace(value);
-                self.local_css_context
-                    .borrow_mut()
-                    .set_config_delay(value, false);
+                self.local_css_context.borrow_mut().set_config_delay(value);
             }
             "max-width" => {
                 let value: i32 = value.get().unwrap();

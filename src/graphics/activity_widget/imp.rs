@@ -10,6 +10,7 @@ use super::{
     boxed_activity_mode::ActivityMode, local_css_context::ActivityWidgetLocalCssContext, util,
     ActivityWidget,
 };
+
 #[derive(Properties)]
 #[properties(wrapper_type = ActivityWidget)]
 pub struct ActivityWidgetPriv {
@@ -37,10 +38,6 @@ pub struct ActivityWidgetPriv {
     /// To be used by dynisland::app and layout managers only
     #[property(get, set, nick = "Enable stretching on drag")]
     pub(super) config_enable_drag_stretch: RefCell<bool>,
-
-    /// To be used by dynisland::app and layout managers only
-    #[property(get, set, nick = "Opacity Transition duration")]
-    pub(super) config_transition_duration: RefCell<u32>,
 
     #[property(get, nick = "The Last Activity mode")]
     pub(super) last_mode: RefCell<ActivityMode>,
@@ -83,7 +80,6 @@ impl Default for ActivityWidgetPriv {
             config_minimal_width: RefCell::new(min_w),
             config_blur_radius: RefCell::new(blur),
             config_enable_drag_stretch: RefCell::new(enable_stretch),
-            config_transition_duration: RefCell::new(1000),
             last_mode: RefCell::new(ActivityMode::Minimal),
             name: RefCell::new(name),
             minimal_mode_widget: RefCell::new(None),
@@ -229,7 +225,7 @@ impl ObjectImpl for ActivityWidgetPriv {
                 self.config_minimal_height.replace(height);
                 self.local_css_context
                     .borrow_mut()
-                    .set_config_minimal_height(value.get().unwrap(), false);
+                    .set_config_minimal_height(value.get().unwrap());
             }
             "config-minimal-width" => {
                 let width = value.get().unwrap();
@@ -237,23 +233,10 @@ impl ObjectImpl for ActivityWidgetPriv {
             }
             "config-blur-radius" => {
                 self.config_blur_radius.replace(value.get().unwrap());
-                // self.local_css_context
-                //     .borrow_mut()
-                //     .set_config_blur_radius(value.get().unwrap(), false);
             }
             "config-enable-drag-stretch" => {
                 self.config_enable_drag_stretch
                     .replace(value.get().unwrap());
-                // self.local_css_context
-                //     .borrow_mut()
-                //     .set_config_enable_drag_stretch(value.get().unwrap(), false);
-            }
-            "config-transition-duration" => {
-                self.config_transition_duration
-                    .replace(value.get().unwrap());
-                // self.local_css_context
-                //     .borrow_mut()
-                //     .set_config_enable_drag_stretch(value.get().unwrap(), false);
             }
             "minimal-mode-widget" => {
                 let widget: Option<gtk::Widget> = value.get().unwrap();

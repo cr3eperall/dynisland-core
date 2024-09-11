@@ -5,7 +5,15 @@ use abi::{glib, gtk};
 
 glib::wrapper! {
     /// A Label with a max width (`width_request`) that scrolls when the inner label exceeds the max width
-    /// NOTE: i don't know why but this widget makes gtk crash if it's in an horizontal box with another widget
+    ///
+    /// # Properties
+    /// * `label` (get,set) - The label widget used to display the text, only use this to set properties of the label
+    /// * `text` (get,set) - The text to be displayed
+    /// * `active` (get) - Whether the scrolling is active(the text exceeds the max width)
+    /// * `config-fade-size` (get,set) - The size of the fade on the sides of the label, can be a percentage(example: "5%") or a pixel value(example: "5px" or "5")
+    /// * `config-scroll-speed` (get,set) - The speed of the scrolling in pixels per second
+    /// * `max-width` (get,set) - The maximum width of the label
+    /// * `config-delay` (get,set) - The time in milliseconds from when the scrolling stops to when it starts again
     pub struct ScrollingLabel(ObjectSubclass<imp::ScrollingLabelPriv>)
         @extends gtk::Widget,
         @implements gtk::Buildable;
@@ -13,7 +21,6 @@ glib::wrapper! {
 
 impl Default for ScrollingLabel {
     fn default() -> Self {
-        // sel.set_overflow(gtk::Overflow::Hidden);
         glib::Object::new::<Self>()
     }
 }
@@ -21,24 +28,5 @@ impl Default for ScrollingLabel {
 impl ScrollingLabel {
     pub fn new() -> Self {
         Self::default()
-        // label.imp().label.borrow().set_text(text.unwrap_or(""));
     }
-    // pub fn set_fade_size(&self, size: CssSize, user: bool) {
-    //     self.imp()
-    //         .local_css_context
-    //         .borrow_mut()
-    //         .set_config_fade_size(size, user);
-    // }
-    // pub fn set_scroll_speed(&self, speed: f32, user: bool) {
-    //     self.imp()
-    //         .local_css_context
-    //         .borrow_mut()
-    //         .set_config_speed(speed, user);
-    // }
-    // pub fn set_delay(&self, delay: u64, user: bool) {
-    //     self.imp()
-    //         .local_css_context
-    //         .borrow_mut()
-    //         .set_config_delay(delay, user);
-    // }
 }
