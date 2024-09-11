@@ -12,6 +12,7 @@ edition = "2021"
 [dependencies]
 
 dynisland-abi = { path="../dynisland-abi", version = "0.1.2"}
+dynisland-macro = { path="../dynisland-macro", version = "0.1.0", optional = true}
 ron = "0.8.1"
 
 tokio = { version = "1.39.0", features = ["rt", "time", "sync", "macros"] }
@@ -23,3 +24,6 @@ rand = "0.8.5"
 notify = { version = "6.1.1", features = ["fsevent-sys"] }
 concat-idents = "1.1.5"
 const-random = "0.1.17"
+
+[features]
+macro = ["dynisland-macro"]
