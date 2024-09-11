@@ -1,4 +1,5 @@
 mod imp;
+mod object_subclass_impl;
 use abi::gtk;
 
 abi::glib::wrapper! {

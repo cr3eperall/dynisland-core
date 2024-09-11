@@ -1,25 +1,21 @@
 use abi::{
-    glib,
     gtk::{self, prelude::*, subclass::prelude::*},
     log,
 };
 
-use crate::{
-    graphics::activity_widget::{
-        boxed_activity_mode::ActivityMode, imp::ActivityWidgetPriv, util, ActivityWidget,
-    },
-    randomize_name,
+use crate::graphics::activity_widget::{
+    boxed_activity_mode::ActivityMode, imp::ActivityWidgetPriv, util, ActivityWidget,
 };
 
 #[derive(Default)]
 pub struct ActivityLayoutManagerPriv {}
 
-#[glib::object_subclass]
-impl ObjectSubclass for ActivityLayoutManagerPriv {
-    const NAME: &'static str = randomize_name!("ActivityLayoutManager");
-    type Type = super::ActivityLayoutManager;
-    type ParentType = gtk::LayoutManager;
-}
+// #[glib::object_subclass]
+// impl ObjectSubclass for ActivityLayoutManagerPriv {
+//     const NAME: &'static str = randomize_name!("ActivityLayoutManager");
+//     type Type = super::ActivityLayoutManager;
+//     type ParentType = gtk::LayoutManager;
+// }
 
 impl ObjectImpl for ActivityLayoutManagerPriv {}
 

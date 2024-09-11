@@ -1,11 +1,13 @@
-use abi::{glib, gtk};
+use std::ffi::CString;
+
+use abi::{
+    glib::{self, ffi::GType, subclass::boxed::BoxedType, translate::FromGlib},
+    gtk,
+};
 use gtk::CssProvider;
 use rand::{distributions::Alphanumeric, Rng};
 
-use crate::{
-    config_variable::ConfigVariable, graphics::util::CssSize, implement_config_get_set,
-    randomize_name,
-};
+use crate::{config_variable::ConfigVariable, graphics::util::CssSize, implement_config_get_set};
 
 #[derive(Clone, Debug)]
 pub struct ScrollingLabelLocalCssContext {
@@ -145,14 +147,27 @@ impl Default for ScrollingLabelLocalCssContext {
 // =========================================
 
 impl glib::subclass::boxed::BoxedType for ScrollingLabelLocalCssContext {
-    const NAME: &'static ::core::primitive::str =
-        randomize_name!("BoxedScrollingLabelLocalCssContext");
+    const NAME: &'static ::core::primitive::str = "BoxedScrollingLabelLocalCssContext";
 }
 impl glib::prelude::StaticType for ScrollingLabelLocalCssContext {
     #[inline]
     fn static_type() -> glib::Type {
         static TYPE: ::std::sync::OnceLock<glib::Type> = ::std::sync::OnceLock::new();
-        *TYPE.get_or_init(glib::subclass::register_boxed_type::<ScrollingLabelLocalCssContext>)
+        *TYPE.get_or_init(|| {
+            unsafe {
+                let type_name = CString::new(<Self as BoxedType>::NAME).unwrap();
+                let gtype: GType = glib::gobject_ffi::g_type_from_name(type_name.as_ptr());
+
+                if gtype == glib::gobject_ffi::G_TYPE_INVALID {
+                    // type needs to be registered
+                    glib::subclass::register_boxed_type::<ScrollingLabelLocalCssContext>()
+                } else {
+                    glib::Type::from_glib(gtype)
+                    // type was already registered by another module, it should be safe to not register it
+                }
+            }
+            // glib::subclass::register_boxed_type::<ActivityMode>()
+        })
     }
 }
 impl glib::value::ValueType for ScrollingLabelLocalCssContext {

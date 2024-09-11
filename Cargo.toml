@@ -12,22 +12,14 @@ edition = "2021"
 [dependencies]
 
 dynisland-abi = { path="../dynisland-abi", version = "0.1.2"}
+ron = "0.8.1"
 
 tokio = { version = "1.39.0", features = ["rt", "time", "sync", "macros"] }
-
 anyhow = "1.0.86"
-ron = "0.8.1"
 env_logger = "0.11.2"
-# serde = { version = "1.0.188", features = ["serde_derive"] }
-# linkme = "0.3.17"
-# grass = {version = "0.13.4", default-features = false, features = ["macro"]}
-
-
-# gtk-layer-shell = { version = "0.2.0", package = "gtk4-layer-shell" }
 clap = { version = "4.4.1", features = ["derive"] }
 dyn-clone = "1.0.13"
 rand = "0.8.5"
 notify = { version = "6.1.1", features = ["fsevent-sys"] }
 concat-idents = "1.1.5"
 const-random = "0.1.17"
-# css-anim = {path = "../../css-anim", version = "*"}
