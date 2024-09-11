@@ -1,6 +1,6 @@
 [package]
 name = "dynisland-core"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["cr3eperall"]
 description = "Common logic and widgets for dynisland modules and layout managers"
 license = "MIT"
