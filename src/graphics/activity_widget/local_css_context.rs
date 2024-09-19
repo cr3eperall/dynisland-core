@@ -15,6 +15,7 @@ pub struct ActivityWidgetLocalCssContext {
     size: (i32, i32),
     opacity: [f64; 4],
     stretch: [(f64, f64); 4],
+    translate: Option<[(f64, f64); 4]>,
     blur: [f64; 4],
     stretch_on_resize: bool,
 
@@ -30,9 +31,9 @@ impl ActivityWidgetLocalCssContext {
             size: (40, 40),
             opacity: [1.0, 0.0, 0.0, 0.0],
             stretch: [(1.0, 1.0), (1.0, 1.0), (1.0, 1.0), (1.0, 1.0)],
+            translate: None,
             blur: [0.0, 1.0, 1.0, 1.0],
             stretch_on_resize: true,
-
             config_minimal_height: 40,
         }
     }
@@ -99,10 +100,15 @@ impl ActivityWidgetLocalCssContext {
         self.stretch[mode as usize] = stretch;
         self.update_provider()
     }
-    pub fn set_stretch_all(&mut self, stretch: [(f64, f64); 4]) {
+    pub fn set_stretch_all(
+        &mut self,
+        stretch: [(f64, f64); 4],
+        translate: Option<[(f64, f64); 4]>,
+    ) {
         if self.stretch == stretch {
             return;
         }
+        self.translate = translate;
         self.stretch = stretch;
         self.update_provider()
     }
@@ -162,6 +168,28 @@ impl ActivityWidgetLocalCssContext {
             stretches[2].1,
             stretches[3].1,
         );
+        let (min_translate_x, com_translate_x, exp_translate_x, ove_translate_x) =
+            if let Some(translate) = self.translate {
+                (
+                    translate[0].0,
+                    translate[1].0,
+                    translate[2].0,
+                    translate[3].0,
+                )
+            } else {
+                (0.0, 0.0, 0.0, 0.0)
+            };
+        let (min_translate_y, com_translate_y, exp_translate_y, ove_translate_y) =
+            if let Some(translate) = self.translate {
+                (
+                    translate[0].1,
+                    translate[1].1,
+                    translate[2].1,
+                    translate[3].1,
+                )
+            } else {
+                (0.0, 0.0, 0.0, 0.0)
+            };
         let (min_blur, com_blur, exp_blur, ove_blur) =
             (self.blur[0], self.blur[1], self.blur[2], self.blur[3]);
         // log::debug!("{size_timing_function}");
@@ -178,22 +206,22 @@ impl ActivityWidgetLocalCssContext {
                 
                 .{name} .mode-minimal{{
                     opacity: {min_opacity};
-                    transform: scale({min_stretch_x}, {min_stretch_y});
+                    transform: scale({min_stretch_x}, {min_stretch_y}) translate({min_translate_x}px, {min_translate_y}px);
                     filter: blur({min_blur}px);
                 }}
                 .{name} .mode-compact{{
                     opacity: {com_opacity};
-                    transform: scale({com_stretch_x}, {com_stretch_y});
+                    transform: scale({com_stretch_x}, {com_stretch_y}) translate({com_translate_x}px, {com_translate_y}px);
                     filter: blur({com_blur}px);
                 }}
                 .{name} .mode-expanded{{
                     opacity: {exp_opacity};
-                    transform: scale({exp_stretch_x}, {exp_stretch_y});
+                    transform: scale({exp_stretch_x}, {exp_stretch_y}) translate({exp_translate_x}px, {exp_translate_y}px);
                     filter: blur({exp_blur}px);
                 }}
                 .{name} .mode-overlay{{
                     opacity: {ove_opacity};
-                    transform: scale({ove_stretch_x}, {ove_stretch_y});
+                    transform: scale({ove_stretch_x}, {ove_stretch_y}) translate({ove_translate_x}px, {ove_translate_y}px);
                     filter: blur({ove_blur}px);
                 }}"
             )

@@ -191,7 +191,7 @@ impl ObjectImpl for ActivityWidgetPriv {
 
                 let stretches = Self::get_stretches(&obj, next_size, min_height, min_width);
                 log::trace!("stretches: {:?}", stretches);
-                css_context.set_stretch_all(stretches);
+                css_context.set_stretch_all(stretches, None);
 
                 if let Some(next) = self.get_mode_widget(mode).borrow().as_ref() {
                     next.remove_css_class("prev");
@@ -379,7 +379,8 @@ impl ActivityWidgetPriv {
             stretches[obj.mode() as usize] = current_stretch;
             // log::trace!("stretches: {:?}", stretches);
             let mut css_context = obj.imp().local_css_context.borrow_mut();
-            css_context.set_stretch_all(stretches);
+            let translates = Self::get_translates(&obj, next_size, stretches, min_height);
+            css_context.set_stretch_all(stretches, Some(translates));
 
             css_context.set_size((next_size.0 as i32, next_size.1 as i32));
             obj.queue_draw();
@@ -398,7 +399,7 @@ impl ActivityWidgetPriv {
                 let stretches = Self::get_stretches(&obj, next_size, min_height, min_width);
                 // log::trace!("stretches: {:?}", stretches);
                 let mut css_context = obj.imp().local_css_context.borrow_mut();
-                css_context.set_stretch_all(stretches);
+                css_context.set_stretch_all(stretches, None);
 
                 css_context.set_size((next_size.0 as i32, next_size.1 as i32));
                 obj.queue_draw();
@@ -417,7 +418,7 @@ impl ActivityWidgetPriv {
                 let stretches = Self::get_stretches(obj, next_size, min_height, min_width);
                 // log::trace!("stretches: {:?}", stretches);
                 let mut css_context = obj.imp().local_css_context.borrow_mut();
-                css_context.set_stretch_all(stretches);
+                css_context.set_stretch_all(stretches, None);
 
                 css_context.set_size((next_size.0 as i32, next_size.1 as i32));
                 obj.queue_draw();
@@ -568,5 +569,77 @@ impl ActivityWidgetPriv {
             (exp_stretch.0, exp_stretch.1),
             (ove_stretch.0, ove_stretch.1),
         ]
+    }
+
+    pub(super) fn get_translates(
+        obj: &ActivityWidget,
+        next_size: (f64, f64),
+        stretches: [(f64, f64); 4],
+        min_height: i32,
+    ) -> [(f64, f64); 4] {
+        let modes = [
+            ActivityMode::Minimal,
+            ActivityMode::Compact,
+            ActivityMode::Expanded,
+            ActivityMode::Overlay,
+        ];
+        let mut translates = [(0.0, 0.0); 4];
+        for (i, mode) in modes.into_iter().enumerate() {
+            let translate = if let Some(widget) = obj.get_widget_for_mode(mode) {
+                let measure = util::get_child_aligned_allocation(
+                    (next_size.0 as i32, next_size.1 as i32, -1),
+                    &widget,
+                    mode,
+                    min_height,
+                    false,
+                );
+                let widget_width = measure.0 as f64;
+                let widget_height = measure.1 as f64;
+                let x = match widget.halign() {
+                    gtk::Align::Start => (next_size.0 - widget_width) / 2.0,
+                    gtk::Align::End => -(next_size.0 - widget_width as f64) / 2.0,
+                    gtk::Align::Fill => {
+                        if widget_width > next_size.0 {
+                            0.0
+                        } else {
+                            -(next_size.0 - widget_width as f64 * stretches[i].0) / 2.0
+                        }
+                    }
+                    _ => {
+                        // center
+                        0.0
+                    }
+                };
+                let y = match widget.valign() {
+                    gtk::Align::Start => (next_size.1 - widget_height as f64) / 2.0,
+                    gtk::Align::End => -(next_size.1 - widget_height as f64) / 2.0,
+                    gtk::Align::Fill => {
+                        if widget_height > next_size.1 {
+                            0.0
+                        } else {
+                            -(next_size.1 - widget_height as f64 * stretches[i].1) / 2.0
+                        }
+                    }
+                    _ => {
+                        // center
+                        0.0
+                    }
+                };
+                (x, y)
+            } else {
+                (0.0, 0.0)
+            };
+            translates[i] = translate;
+            if mode == ActivityMode::Expanded {
+                translates[i] = (translate.0 / stretches[i].0, translate.1 / stretches[i].1);
+                // log::debug!(
+                //     "translate: {:?}, stretch: {:?}",
+                //     translates[i],
+                //     stretches[i]
+                // );
+            }
+        }
+
+        translates
     }
 }
